@@ -18,6 +18,13 @@ def show():
         st.switch_page("pages/home.py")
     if page == "Text Page":
         st.title("Text Page")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            user_input = st.text_area("Start typing:")
+
+        with col2:
+            st.text_area("Predicted text:", value=user_input)
 
 
 show()
