@@ -19,12 +19,13 @@ def show():
     if page == "Text Page":
         st.title("Text Page")
         col1, col2 = st.columns(2)
-
+        prediction="suggestion"
         with col1:
             user_input = st.text_area("Start typing:")
+            if st.button('Predict'):
+                user_input += ' ' + prediction
 
         with col2:
-            st.text_area("Predicted text:", value=user_input)
-
+            st.text_area("Predicted text:", value=user_input, disabled=True)
 
 show()
