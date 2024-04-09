@@ -54,33 +54,32 @@ def show():
             st.session_state[f"{feature}_predicted_text"] = ""
 
         with col1:
-            if feature == "Interactive Autocomplete":
-                # Text input
-                user_input = st.text_area(
-                    "Start typing:", value=st.session_state[f"{feature}_user_input"]
-                )
+            # Text input
+            user_input = st.text_area(
+                "Start typing:",
+                value=st.session_state[f"{feature}_user_input"],
+            )
 
-                if st.button("Predict"):
-                    # Update 'predicted_text' in the session state
-                    st.session_state[f"{feature}_predicted_text"] = (
-                        str(user_input) + " " + prediction
-                    )
+            if st.button("Predict"):
+                # Update 'predicted_text' in the session state
+                st.session_state[f"{feature}_predicted_text"] = (
+                    str(user_input) + " " + prediction
+                )
 
         with col2:
-            if feature == "Interactive Autocomplete":
-                suggested_text = st.text_area(
-                    "Predicted text:",
-                    value=st.session_state[f"{feature}_predicted_text"],
-                    disabled=True,
-                    key="suggested_text_1",
-                )
+            suggested_text = st.text_area(
+                "Predicted text:",
+                value=st.session_state[f"{feature}_predicted_text"],
+                disabled=True,
+                key="suggested_text_1",
+            )
 
-                if st.button("Apply suggestion", key="suggested_b_1"):
-                    # Update 'user_input' in the session state
-                    st.session_state[f"{feature}_user_input"] = st.session_state[
-                        f"{feature}_predicted_text"
-                    ]
-                    st.rerun()  # Rerun the script to update the text area
+            if st.button("Apply suggestion", key="suggested_b_1"):
+                # Update 'user_input' in the session state
+                st.session_state[f"{feature}_user_input"] = st.session_state[
+                    f"{feature}_predicted_text"
+                ]
+                st.rerun()  # Rerun the script to update the text area
 
 
 show()
