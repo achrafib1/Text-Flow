@@ -22,10 +22,10 @@ env/
 src/model/*.h5
 
 # Ignore pickle files
-src/model/*.pkl
+src/models/*.pkl
 
 # Ignore vocabulary.txt file
-src/model/vocabulary.txt
+src/models/vocabulary.txt
 
 # Distribution / packaging
 build/
