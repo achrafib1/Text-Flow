@@ -14,11 +14,18 @@ __pycache__/
 env/
 
 
+
 # Ignore Jupyter notebook checkpoints
 *.ipynb_checkpoints/
 
 # Ignore trained TensorFlow models
 src/model/*.h5
+
+# Ignore pickle files
+src/models/*.pkl
+
+# Ignore vocabulary.txt file
+src/models/vocabulary.txt
 
 # Distribution / packaging
 build/
