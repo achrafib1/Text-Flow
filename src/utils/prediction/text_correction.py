@@ -45,3 +45,46 @@ def calculate_probability(
         combined_prob = trigram_prob
 
     return combined_prob
+
+
+def filter_known_words(words, vocab):
+    "The subset of `words` that appear in the `vocab`."
+    return set(words).intersection(vocab)
+
+
+def correct(
+    word,
+    prev_word,
+    next_word,
+    vocab,
+    edit1,
+    edit2,
+    unigram_counts,
+    bigram_counts,
+    trigram_counts,
+):
+    "Find the best correct spelling for `word`."
+
+    # Generate candidate words
+
+    candidates = (
+        filter_known_words([word], vocab)
+        | filter_known_words(edit1(word), vocab)
+        | filter_known_words(edit2(word), vocab)
+    )
+
+    # Calculate the probability for each candidate word
+    probs = {
+        candidate: calculate_probability(
+            candidate,
+            unigram_counts,
+            prev_word,
+            next_word,
+            bigram_counts,
+            trigram_counts,
+        )
+        for candidate in candidates
+    }
+
+    # Return the candidate word with the highest probability
+    return max(probs, key=probs.get), max(probs.values())
