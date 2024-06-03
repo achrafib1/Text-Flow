@@ -1,4 +1,5 @@
 import numpy as np
+from utils.text_processing.text_preprocessing import text_processing
 
 
 def calculate_probability(
@@ -88,3 +89,47 @@ def correct(
 
     # Return the candidate word with the highest probability
     return max(probs, key=probs.get), max(probs.values())
+
+
+def correct_text(
+    text, vocab, edit1, edit2, unigram_counts, bigram_counts, trigram_counts
+):
+    # Tokenize and process the text
+    words = text_processing(text)
+
+    # Initialize an empty list to hold the corrected words
+    corrected_words = []
+
+    # Iterate over each word in the text
+    for i, word in enumerate(words):
+        # If the word is not in the vocabulary, it's considered a misspelled word
+        if word not in vocab:
+            # Get the previous and next words
+            prev_word = words[i - 1] if i > 0 else ""
+            next_word = words[i + 1] if i < len(words) - 1 else ""
+
+            # Correct the misspelled word
+            corrected_word, _ = correct(
+                word,
+                prev_word,
+                next_word,
+                vocab,
+                edit1,
+                edit2,
+                unigram_counts,
+                bigram_counts,
+                trigram_counts,
+            )
+
+            # Add the corrected word to the list
+            corrected_words.append(corrected_word)
+        else:
+            # If the word is in the vocabulary, it's considered a correctly spelled word
+            # Add the correctly spelled word to the list
+            corrected_words.append(word)
+    print(corrected_words)
+
+    # Join the corrected words back into a string
+    corrected_text = " ".join(corrected_words)
+
+    return corrected_text
