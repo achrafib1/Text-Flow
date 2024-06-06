@@ -1,4 +1,8 @@
 import streamlit as st
+from utils.data.load_data import load_vocab, load_pickle_file
+from utils.prediction.text_completion import predict_next_word
+from utils.text_processing.edit_distance import edits1, edits2, edits3
+from utils.text_processing.text_preprocessing import text_processing
 
 
 def show():
@@ -47,6 +51,11 @@ def show():
         # Prediction
         prediction = "suggestion"
 
+        # Load the vocabulary, n-gram counts, and n-gram+1 counts from files
+        vocab = load_vocab("src/models/vocabulary.txt")
+        ngram_counts = load_pickle_file("src/models/ngram_counts.pkl")
+        nplus1gram_counts = load_pickle_file("src/models/nplus1gram_counts.pkl")
+
         # Define session state variables for the selected feature
         if f"{feature}_user_input" not in st.session_state:
             st.session_state[f"{feature}_user_input"] = ""
@@ -61,9 +70,15 @@ def show():
             )
 
             if st.button("Predict"):
+                # Process the user's input
+                prev_tokens = text_processing(str(user_input))
+                # Predict the next word
+                next_word_prediction, prob, _ = predict_next_word(
+                    prev_tokens, ngram_counts, nplus1gram_counts, vocab
+                )
                 # Update 'predicted_text' in the session state
                 st.session_state[f"{feature}_predicted_text"] = (
-                    str(user_input) + " " + prediction
+                    str(user_input) + " " + next_word_prediction
                 )
 
         with col2:
