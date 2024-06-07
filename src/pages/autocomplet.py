@@ -3,6 +3,7 @@ from utils.data.load_data import load_vocab, load_pickle_file
 from utils.prediction.text_completion import predict_next_word
 from utils.text_processing.edit_distance import edits1, edits2, edits3
 from utils.text_processing.text_preprocessing import text_processing
+from utils.prediction.text_correction import correct_text
 
 
 def show():
@@ -47,6 +48,11 @@ def show():
         if feature == "Combined Autocomplete and Autocorrect":
             autocorrect_level = st.sidebar.slider("Autocorrect level", 1, 5, 3)
 
+        if feature == "Autocorrect":
+            unigram_counter = load_pickle_file("src/models/unigram_counter.pkl")
+            bigram_counter = load_pickle_file("src/models/bigram_counter.pkl")
+            trigram_counter = load_pickle_file("src/models/trigram_counter.pkl")
+
         col1, col2 = st.columns(2)
         # Prediction
         prediction = "suggestion"
@@ -72,14 +78,26 @@ def show():
             if st.button("Predict"):
                 # Process the user's input
                 prev_tokens = text_processing(str(user_input))
-                # Predict the next word
-                next_word_prediction, prob, _ = predict_next_word(
-                    prev_tokens, ngram_counts, nplus1gram_counts, vocab
-                )
-                # Update 'predicted_text' in the session state
-                st.session_state[f"{feature}_predicted_text"] = (
-                    str(user_input) + " " + next_word_prediction
-                )
+                if feature == "Autocorrect":
+                    corrected_text = correct_text(
+                        str(user_input),
+                        vocab,
+                        edits1,
+                        edits2,
+                        unigram_counter,
+                        bigram_counter,
+                        trigram_counter,
+                    )
+                    st.session_state[f"{feature}_predicted_text"] = corrected_text
+                if feature == "Interactive Autocomplete":
+                    # Predict the next word
+                    next_word_prediction, prob, _ = predict_next_word(
+                        prev_tokens, ngram_counts, nplus1gram_counts, vocab
+                    )
+                    # Update 'predicted_text' in the session state
+                    st.session_state[f"{feature}_predicted_text"] = (
+                        str(user_input) + " " + next_word_prediction
+                    )
 
         with col2:
             suggested_text = st.text_area(
