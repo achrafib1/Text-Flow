@@ -48,7 +48,7 @@ def show():
         if feature == "Combined Autocomplete and Autocorrect":
             autocorrect_level = st.sidebar.slider("Autocorrect level", 1, 5, 3)
 
-        if feature == "Autocorrect":
+        if feature in ("Autocorrect", "Combined Autocomplete and Autocorrect"):
             unigram_counter = load_pickle_file("src/models/unigram_counter.pkl")
             bigram_counter = load_pickle_file("src/models/bigram_counter.pkl")
             trigram_counter = load_pickle_file("src/models/trigram_counter.pkl")
@@ -76,9 +76,7 @@ def show():
             )
 
             if st.button("Predict"):
-                # Process the user's input
-                prev_tokens = text_processing(str(user_input))
-                if feature == "Autocorrect":
+                if feature in ("Autocorrect", "Combined Autocomplete and Autocorrect"):
                     corrected_text = correct_text(
                         str(user_input),
                         vocab,
@@ -89,7 +87,15 @@ def show():
                         trigram_counter,
                     )
                     st.session_state[f"{feature}_predicted_text"] = corrected_text
-                if feature == "Interactive Autocomplete":
+                    if feature == "Combined Autocomplete and Autocorrect":
+                        user_input = corrected_text
+
+                # Process the user's input
+                prev_tokens = text_processing(str(user_input))
+                if feature in (
+                    "Interactive Autocomplete",
+                    "Combined Autocomplete and Autocorrect",
+                ):
                     # Predict the next word
                     next_word_prediction, prob, _ = predict_next_word(
                         prev_tokens, ngram_counts, nplus1gram_counts, vocab
