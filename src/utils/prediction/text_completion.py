@@ -1,4 +1,5 @@
 import numpy as np
+import streamlit as st
 
 
 def calculate_probability(
@@ -12,6 +13,7 @@ def calculate_probability(
     return probability
 
 
+@st.cache_data
 def predict_next_word(
     previous_tokens, ngram_counts, nplus1gram_counts, vocab, start_of_word=None
 ):
