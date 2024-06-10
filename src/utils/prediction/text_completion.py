@@ -41,3 +41,16 @@ def predict_next_word(
     max_probability = probabilities[next_word]
 
     return next_word, max_probability, probabilities
+
+
+def predict_next_n_words(
+    previous_tokens, ngram_counts, nplus1gram_counts, vocab, n_words, start_of_word=None
+):
+    words = []
+    for _ in range(n_words):
+        next_word, _, _ = predict_next_word(
+            previous_tokens, ngram_counts, nplus1gram_counts, vocab, start_of_word
+        )
+        words.append(next_word)
+        previous_tokens.append(next_word)
+    return words
