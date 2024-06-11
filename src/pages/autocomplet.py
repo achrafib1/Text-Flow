@@ -1,6 +1,6 @@
 import streamlit as st
 from utils.data.load_data import load_vocab, load_pickle_file
-from utils.prediction.text_completion import predict_next_word
+from utils.prediction.text_completion import predict_next_word, predict_next_n_words
 from utils.text_processing.edit_distance import edits1, edits2, edits3
 from utils.text_processing.text_preprocessing import text_processing
 from utils.prediction.text_correction import correct_text
@@ -96,10 +96,21 @@ def show():
                     "Interactive Autocomplete",
                     "Combined Autocomplete and Autocorrect",
                 ):
-                    # Predict the next word
-                    next_word_prediction, prob, _ = predict_next_word(
-                        prev_tokens, ngram_counts, nplus1gram_counts, vocab
-                    )
+                    if num_words == 1:
+
+                        # Predict the next word
+                        next_word_prediction, prob, _ = predict_next_word(
+                            prev_tokens, ngram_counts, nplus1gram_counts, vocab
+                        )
+                    else:
+                        # Predict the next word
+                        next_word_prediction = predict_next_n_words(
+                            prev_tokens,
+                            ngram_counts,
+                            nplus1gram_counts,
+                            vocab,
+                            num_words,
+                        )
                     # Update 'predicted_text' in the session state
                     st.session_state[f"{feature}_predicted_text"] = (
                         str(user_input) + " " + next_word_prediction

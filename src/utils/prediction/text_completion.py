@@ -43,9 +43,11 @@ def predict_next_word(
     return next_word, max_probability, probabilities
 
 
+@st.cache_data
 def predict_next_n_words(
     previous_tokens, ngram_counts, nplus1gram_counts, vocab, n_words, start_of_word=None
 ):
+    print("xxxx")
     words = []
     for _ in range(n_words):
         next_word, _, _ = predict_next_word(
@@ -53,4 +55,5 @@ def predict_next_n_words(
         )
         words.append(next_word)
         previous_tokens.append(next_word)
-    return words
+    print(words)
+    return " ".join(words)
