@@ -1,14 +1,27 @@
 import re
 import nltk
 from nltk.tokenize import sent_tokenize
+from typing import List
 
 
-def text_processing(example, n=3):
+def text_processing(example: str, n: int = 3) -> List[str]:
+    """
+    The `text_processing` function cleans and tokenizes input text.
+    It converts text to lower case, removes links and symbols, splits it into words, and filters out empty strings.
+    It returns a list of processed tokens.
 
-    # convert all letters to lower case
+    Parameters:
+    example (str): The text to be processed.
+    n (int): An optional parameter with a default value of 3.
+
+    Returns:
+    List[str]: A list of processed tokens.
+    """
+
+    # Convert all letters to lower case
     example = example.lower()
 
-    # Remove links
+    # Remove links, '@', '#', and '!' symbols
     example = re.sub(r"http\S+|www.\S+|@|️#|!|", "", example)
 
     # Split the text into sentences
@@ -18,10 +31,10 @@ def text_processing(example, n=3):
     processed_text = []
     for sentence in sentences:
 
-        # Remove other non-alphanumeric characters (excluding '<EOS>' and '.')
-        sentence = re.sub(r"[^a-zA-Z0-9 .,]", " ", example)
+        # Remove other non-alphanumeric characters (excluding '.')
+        sentence = re.sub(r"[^a-zA-Z0-9 .,]", " ", sentence)
 
-        # Tokenize the sentence
+        # Tokenize the sentence into words
         sentence_tokens = nltk.word_tokenize(sentence)
 
         #         # Replace periods with '<EOS>' token only if they are at the end of a sentence
@@ -35,6 +48,7 @@ def text_processing(example, n=3):
             token for token in sentence_tokens if token.strip() and token
         ]
 
+        # Extend the processed text list with the tokens
         processed_text.extend(sentence_tokens)
 
     return processed_text
