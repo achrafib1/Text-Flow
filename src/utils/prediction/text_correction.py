@@ -1,15 +1,32 @@
 import numpy as np
 from utils.text_processing.text_preprocessing import text_processing
+from typing import Dict, Optional, Tuple
 
 
 def calculate_probability(
-    word,
-    unigram_counts,
-    prev_word=None,
-    next_word=None,
-    bigram_counts=None,
-    trigram_counts=None,
-):
+    word: str,
+    unigram_counts: Dict[str, int],
+    prev_word: Optional[str] = None,
+    next_word: Optional[str] = None,
+    bigram_counts: Optional[Dict[Tuple[str, str], int]] = None,
+    trigram_counts: Optional[Dict[Tuple[str, str, str], int]] = None,
+) -> float:
+    """
+    Calculates the combined probability of a word given its context (previous and next words).
+    It uses unigram, bigram, and trigram counts to calculate probabilities with smoothing.
+    The function returns the highest order n-gram probability available.
+
+    Parameters:
+    word (str): The word for which the probability is calculated.
+    unigram_counts (Dict[str, int]): The counts of each unigram in the corpus.
+    prev_word (Optional[str]): The word preceding the target word. Default is None.
+    next_word (Optional[str]): The word following the target word. Default is None.
+    bigram_counts (Optional[Dict[Tuple[str, str], int]]): The counts of each bigram in the corpus. Default is None.
+    trigram_counts (Optional[Dict[Tuple[str, str, str], int]]): The counts of each trigram in the corpus. Default is None.
+
+    Returns:
+    float: The combined probability of the word.
+    """
     # Calculate the individual word probability with smoothing
     word_prob = np.log(
         (unigram_counts.get(word, 0) + 1)
@@ -18,7 +35,7 @@ def calculate_probability(
 
     combined_prob = word_prob
 
-    if prev_word and bigram_counts:
+    if prev_word and bigram_counts is not None:
         # Calculate the conditional probability of the word given the previous word with smoothing
         bigram = (prev_word, word)
         bigram_prob = np.log(
@@ -27,7 +44,7 @@ def calculate_probability(
         )
         combined_prob = bigram_prob
 
-    if next_word and bigram_counts:
+    if next_word and bigram_counts is not None:
         # Calculate the conditional probability of the word given the next word with smoothing
         bigram = (word, next_word)
         bigram_prob = np.log(
@@ -36,7 +53,7 @@ def calculate_probability(
         )
         combined_prob = bigram_prob
 
-    if prev_word and next_word and trigram_counts:
+    if prev_word and next_word and trigram_counts and bigram_counts is not None:
         # Calculate the conditional probability of the word given the previous and next words with smoothing
         trigram = (prev_word, word, next_word)
         trigram_prob = np.log(
