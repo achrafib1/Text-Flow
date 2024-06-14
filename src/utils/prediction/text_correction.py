@@ -1,6 +1,6 @@
 import numpy as np
 from utils.text_processing.text_preprocessing import text_processing
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Callable, Set, List
 
 
 def calculate_probability(
@@ -65,28 +65,51 @@ def calculate_probability(
     return combined_prob
 
 
-def filter_known_words(words, vocab):
-    "The subset of `words` that appear in the `vocab`."
-    return set(words).intersection(vocab)
+def filter_known_words(words: Set[str], vocab: Set[str]) -> Set[str]:
+    """
+    Returns the subset of words that appear in the vocabulary.
+
+    Parameters:
+    words (Set[str]): The set of words to be filtered.
+    vocab (Set[str]): The set of known words (vocabulary).
+
+    Returns:
+    Set[str]: The subset of words that appear in the vocabulary.
+    """
+    return words.intersection(vocab)
 
 
 def correct(
-    word,
-    prev_word,
-    next_word,
-    vocab,
-    edit1,
-    edit2,
-    unigram_counts,
-    bigram_counts,
-    trigram_counts,
-):
-    "Find the best correct spelling for `word`."
+    word: str,
+    prev_word: Optional[str],
+    next_word: Optional[str],
+    vocab: Set[str],
+    edit1: Callable[[str], Set[str]],
+    edit2: Callable[[str], Set[str]],
+    unigram_counts: Dict[str, int],
+    bigram_counts: Optional[Dict[Tuple[str, str], int]],
+    trigram_counts: Optional[Dict[Tuple[str, str, str], int]],
+) -> Tuple[str, float]:
+    """
+    Finds the best correct spelling for a word.
 
+    Parameters:
+    word (str): The word to be corrected.
+    prev_word (Optional[str]): The word preceding the target word. Default is None.
+    next_word (Optional[str]): The word following the target word. Default is None.
+    vocab (Set[str]): The set of known words (vocabulary).
+    edit1 (Callable[[str], Set[str]]): The function to generate words that are one edit away.
+    edit2 (Callable[[str], Set[str]]): The function to generate words that are two edits away.
+    unigram_counts (Dict[str, int]): The counts of each unigram in the corpus.
+    bigram_counts (Optional[Dict[Tuple[str, str], int]]): The counts of each bigram in the corpus. Default is None.
+    trigram_counts (Optional[Dict[Tuple[str, str, str], int]]): The counts of each trigram in the corpus. Default is None.
+
+    Returns:
+    Tuple[str, float]: The best corrected word and its probability.
+    """
     # Generate candidate words
-
     candidates = (
-        filter_known_words([word], vocab)
+        filter_known_words(set(word), vocab)
         | filter_known_words(edit1(word), vocab)
         | filter_known_words(edit2(word), vocab)
     )
