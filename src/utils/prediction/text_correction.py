@@ -65,18 +65,18 @@ def calculate_probability(
     return combined_prob
 
 
-def filter_known_words(words: Set[str], vocab: Set[str]) -> Set[str]:
+def filter_known_words(words: List[str], vocab: Set[str]) -> Set[str]:
     """
     Returns the subset of words that appear in the vocabulary.
 
     Parameters:
-    words (Set[str]): The set of words to be filtered.
+    words (List[str]): The list of words to be filtered.
     vocab (Set[str]): The set of known words (vocabulary).
 
     Returns:
     Set[str]: The subset of words that appear in the vocabulary.
     """
-    return words.intersection(vocab)
+    return set(words).intersection(vocab)
 
 
 def correct(
@@ -109,10 +109,14 @@ def correct(
     """
     # Generate candidate words
     candidates = (
-        filter_known_words(set(word), vocab)
-        | filter_known_words(edit1(word), vocab)
-        | filter_known_words(edit2(word), vocab)
+        filter_known_words([word], vocab)
+        | filter_known_words(list(edit1(word)), vocab)
+        | filter_known_words(list(edit2(word)), vocab)
     )
+
+    # If no candidates are found, return None
+    if not candidates:
+        return word, 0.0
 
     # Calculate the probability for each candidate word
     probs = {
@@ -128,12 +132,33 @@ def correct(
     }
 
     # Return the candidate word with the highest probability
-    return max(probs, key=probs.get), max(probs.values())
+    return max(probs, key=lambda x: probs.get(x, 0.0)), max(probs.values())
 
 
 def correct_text(
-    text, vocab, edit1, edit2, unigram_counts, bigram_counts, trigram_counts
-):
+    text: str,
+    vocab: Set[str],
+    edit1: Callable[[str], Set[str]],
+    edit2: Callable[[str], Set[str]],
+    unigram_counts: Dict[str, int],
+    bigram_counts: Optional[Dict[Tuple[str, str], int]],
+    trigram_counts: Optional[Dict[Tuple[str, str, str], int]],
+) -> str:
+    """
+    Corrects the spelling of words in a text.
+
+    Parameters:
+    text (str): The text to be corrected.
+    vocab (Set[str]): The set of known words (vocabulary).
+    edit1 (Callable[[str], Set[str]]): The function to generate words that are one edit away.
+    edit2 (Callable[[str], Set[str]]): The function to generate words that are two edits away.
+    unigram_counts (Dict[str, int]): The counts of each unigram in the corpus.
+    bigram_counts (Optional[Dict[Tuple[str, str], int]]): The counts of each bigram in the corpus. Default is None.
+    trigram_counts (Optional[Dict[Tuple[str, str, str], int]]): The counts of each trigram in the corpus. Default is None.
+
+    Returns:
+    str: The corrected text.
+    """
     # Tokenize and process the text
     words = text_processing(text)
 
@@ -145,8 +170,8 @@ def correct_text(
         # If the word is not in the vocabulary, it's considered a misspelled word
         if word not in vocab:
             # Get the previous and next words
-            prev_word = words[i - 1] if i > 0 else ""
-            next_word = words[i + 1] if i < len(words) - 1 else ""
+            prev_word = words[i - 1] if i > 0 else None
+            next_word = words[i + 1] if i < len(words) - 1 else None
 
             # Correct the misspelled word
             corrected_word, _ = correct(
@@ -167,7 +192,6 @@ def correct_text(
             # If the word is in the vocabulary, it's considered a correctly spelled word
             # Add the correctly spelled word to the list
             corrected_words.append(word)
-    print(corrected_words)
 
     # Join the corrected words back into a string
     corrected_text = " ".join(corrected_words)
