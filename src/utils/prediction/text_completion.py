@@ -1,13 +1,35 @@
 import numpy as np
 import streamlit as st
+from typing import Dict, Tuple
 
 
 def calculate_probability(
-    word, last_ngram, ngram_counts, nplus1gram_counts, vocab_size
-):
-    # Calculate the probability of the word given the last n-gram
+    word: str,
+    last_ngram: Tuple[str, ...],
+    ngram_counts: Dict[Tuple[str, ...], int],
+    nplus1gram_counts: Dict[Tuple[str, ...], int],
+    vocab_size: int,
+) -> float:
+    """
+    Calculates the probability of a word given the last n-gram using Laplace smoothing.
+
+    Parameters:
+    word (str): The word for which the probability is calculated.
+    last_ngram (Tuple[str, ...]): The last n-gram before the word.
+    ngram_counts (Dict[Tuple[str, ...], int]): The counts of each n-gram in the corpus.
+    nplus1gram_counts (Dict[Tuple[str, ...], int]): The counts of each (n+1)-gram in the corpus.
+    vocab_size (int): The number of unique words in the vocabulary.
+
+    Returns:
+    float: The calculated probability of the word.
+    """
+    # Get the count of the last n-gram
     ngram_count = ngram_counts.get(last_ngram, 0)
+
+    # Get the count of the (n+1)-gram which is the last n-gram followed by the word
     nplus1gram_count = nplus1gram_counts.get(last_ngram + (word,), 0)
+
+    # Calculate the probability with Laplace smoothing
     probability = np.log((nplus1gram_count + 1) / (ngram_count + vocab_size))
 
     return probability
