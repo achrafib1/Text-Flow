@@ -1,6 +1,6 @@
 import numpy as np
 import streamlit as st
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List, Optional
 
 
 def calculate_probability(
@@ -37,14 +37,30 @@ def calculate_probability(
 
 @st.cache_data
 def predict_next_word(
-    previous_tokens, ngram_counts, nplus1gram_counts, vocab, start_of_word=None
-):
+    previous_tokens: List[str],
+    ngram_counts: Dict[Tuple[str, ...], int],
+    nplus1gram_counts: Dict[Tuple[str, ...], int],
+    vocab: List[str],
+    start_of_word: Optional[str] = None,
+) -> Tuple[str, float, Dict[str, float]]:
+    """
+    Predicts the next word based on the previous tokens using n-gram counts.
 
+    Parameters:
+    previous_tokens (List[str]): The list of previous tokens.
+    ngram_counts (Dict[Tuple[str, ...], int]): The counts of each n-gram in the corpus.
+    nplus1gram_counts (Dict[Tuple[str, ...], int]): The counts of each (n+1)-gram in the corpus.
+    vocab (List[str]): The list of words in the vocabulary.
+    start_of_word (Optional[str]): The starting characters of the word. Default is None.
+
+    Returns:
+    Tuple[str, float, Dict[str, float]]: The predicted next word, its probability, and the probabilities of all words.
+    """
+    # Determine the order of the n-grams
     n = len(list(ngram_counts.keys())[0])
 
     # Get the last n tokens
     last_ngram = tuple(previous_tokens[-n:])
-    print(last_ngram)
 
     # Filter the vocabulary to only include words that start with the given characters
     if start_of_word is not None:
@@ -59,7 +75,7 @@ def predict_next_word(
     }
 
     # Find the word with the highest probability
-    next_word = max(probabilities, key=probabilities.get)
+    next_word = max(probabilities, key=lambda x: probabilities.get(x, 0.0))
     max_probability = probabilities[next_word]
 
     return next_word, max_probability, probabilities
