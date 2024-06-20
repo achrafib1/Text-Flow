@@ -83,15 +83,37 @@ def predict_next_word(
 
 @st.cache_data
 def predict_next_n_words(
-    previous_tokens, ngram_counts, nplus1gram_counts, vocab, n_words, start_of_word=None
-):
-    print("xxxx")
+    previous_tokens: List[str],
+    ngram_counts: Dict[Tuple[str, ...], int],
+    nplus1gram_counts: Dict[Tuple[str, ...], int],
+    vocab: List[str],
+    n_words: int,
+    start_of_word: Optional[str] = None,
+) -> str:
+    """
+    Predicts the next 'n_words' based on the previous tokens using n-gram counts.
+
+    Parameters:
+    previous_tokens (List[str]): The list of previous tokens.
+    ngram_counts (Dict[Tuple[str, ...], int]): The counts of each n-gram in the corpus.
+    nplus1gram_counts (Dict[Tuple[str, ...], int]): The counts of each (n+1)-gram in the corpus.
+    vocab (List[str]): The list of words in the vocabulary.
+    n_words (int): The number of words to predict.
+    start_of_word (Optional[str]): The starting characters of the word. Default is None.
+
+    Returns:
+    str: The predicted next 'n_words' as a string.
+    """
+    # Placeholder for the predicted words
     words = []
+
+    # Predict the next 'n_words'
     for _ in range(n_words):
         next_word, _, _ = predict_next_word(
             previous_tokens, ngram_counts, nplus1gram_counts, vocab, start_of_word
         )
         words.append(next_word)
         previous_tokens.append(next_word)
-    print(words)
+
+    # Return the predicted words as a string
     return " ".join(words)
