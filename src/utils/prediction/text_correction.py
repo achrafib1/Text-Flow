@@ -65,13 +65,13 @@ def calculate_probability(
     return combined_prob
 
 
-def filter_known_words(words: List[str], vocab: Set[str]) -> Set[str]:
+def filter_known_words(words: List[str], vocab: List[str]) -> Set[str]:
     """
     Returns the subset of words that appear in the vocabulary.
 
     Parameters:
     words (List[str]): The list of words to be filtered.
-    vocab (Set[str]): The set of known words (vocabulary).
+    vocab (List[str]): The list of known words (vocabulary).
 
     Returns:
     Set[str]: The subset of words that appear in the vocabulary.
@@ -83,7 +83,7 @@ def correct(
     word: str,
     prev_word: Optional[str],
     next_word: Optional[str],
-    vocab: Set[str],
+    vocab: List[str],
     edit1: Callable[[str], Set[str]],
     edit2: Callable[[str], Set[str]],
     unigram_counts: Dict[str, int],
@@ -97,7 +97,7 @@ def correct(
     word (str): The word to be corrected.
     prev_word (Optional[str]): The word preceding the target word. Default is None.
     next_word (Optional[str]): The word following the target word. Default is None.
-    vocab (Set[str]): The set of known words (vocabulary).
+    vocab (List[str]): The list of known words (vocabulary).
     edit1 (Callable[[str], Set[str]]): The function to generate words that are one edit away.
     edit2 (Callable[[str], Set[str]]): The function to generate words that are two edits away.
     unigram_counts (Dict[str, int]): The counts of each unigram in the corpus.
@@ -137,7 +137,7 @@ def correct(
 
 def correct_text(
     text: str,
-    vocab: Set[str],
+    vocab: List[str],
     edit1: Callable[[str], Set[str]],
     edit2: Callable[[str], Set[str]],
     unigram_counts: Dict[str, int],
@@ -149,7 +149,7 @@ def correct_text(
 
     Parameters:
     text (str): The text to be corrected.
-    vocab (Set[str]): The set of known words (vocabulary).
+    vocab (List[str]): The List of known words (vocabulary).
     edit1 (Callable[[str], Set[str]]): The function to generate words that are one edit away.
     edit2 (Callable[[str], Set[str]]): The function to generate words that are two edits away.
     unigram_counts (Dict[str, int]): The counts of each unigram in the corpus.
