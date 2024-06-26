@@ -92,11 +92,13 @@ def show():
                     )
                     # Store the corrected text in the session state
                     st.session_state[f"{feature}_predicted_text"] = corrected_text
+
                     if feature == "Combined Autocomplete and Autocorrect":
                         user_input = corrected_text
-
                 # Process the user's input
                 prev_tokens = text_processing(str(user_input))
+
+                # If the feature is 'Interactive Autocomplete' or 'Combined Autocomplete and Autocorrect'
                 if feature in (
                     "Interactive Autocomplete",
                     "Combined Autocomplete and Autocorrect",
