@@ -48,7 +48,9 @@ def show():
         if feature == "Combined Autocomplete and Autocorrect":
             autocorrect_level = st.sidebar.slider("Autocorrect level", 1, 5, 3)
 
+        # Check if the feature is either 'Autocorrect' or 'Combined Autocomplete and Autocorrect'
         if feature in ("Autocorrect", "Combined Autocomplete and Autocorrect"):
+            # Load the unigram, bigram, and trigram counters from pickle files
             unigram_counter = load_pickle_file("src/models/unigram_counter.pkl")
             bigram_counter = load_pickle_file("src/models/bigram_counter.pkl")
             trigram_counter = load_pickle_file("src/models/trigram_counter.pkl")
@@ -76,7 +78,9 @@ def show():
             )
 
             if st.button("Predict"):
+                # If the feature is 'Autocorrect' or 'Combined Autocomplete and Autocorrect'
                 if feature in ("Autocorrect", "Combined Autocomplete and Autocorrect"):
+                    # Correct the user's input text
                     corrected_text = correct_text(
                         str(user_input),
                         vocab,
@@ -86,6 +90,7 @@ def show():
                         bigram_counter,
                         trigram_counter,
                     )
+                    # Store the corrected text in the session state
                     st.session_state[f"{feature}_predicted_text"] = corrected_text
                     if feature == "Combined Autocomplete and Autocorrect":
                         user_input = corrected_text
@@ -96,6 +101,7 @@ def show():
                     "Interactive Autocomplete",
                     "Combined Autocomplete and Autocorrect",
                 ):
+                    # If only one word is to be predicted
                     if num_words == 1:
 
                         # Predict the next word
@@ -103,7 +109,7 @@ def show():
                             prev_tokens, ngram_counts, nplus1gram_counts, vocab
                         )
                     else:
-                        # Predict the next word
+                        # Predict the next 'num_words' words
                         next_word_prediction = predict_next_n_words(
                             prev_tokens,
                             ngram_counts,
@@ -117,6 +123,7 @@ def show():
                     )
 
         with col2:
+            # Display the predicted text in a text area
             suggested_text = st.text_area(
                 "Predicted text:",
                 value=st.session_state[f"{feature}_predicted_text"],
@@ -124,6 +131,7 @@ def show():
                 key="suggested_text_1",
             )
 
+            # Check if the 'Apply suggestion' button is clicked
             if st.button("Apply suggestion", key="suggested_b_1"):
                 # Update 'user_input' in the session state
                 st.session_state[f"{feature}_user_input"] = st.session_state[
