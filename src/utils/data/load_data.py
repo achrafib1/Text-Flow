@@ -1,6 +1,8 @@
 import pickle
 import streamlit as st
 from typing import List, Any
+import tensorflow as tf
+import keras
 
 
 @st.cache_data
@@ -31,3 +33,17 @@ def load_vocab(file_path: str) -> List[str]:
     """
     with open(file_path, "r") as f:
         return [line.strip() for line in f]
+
+
+@st.cache_data
+def load_h5_model(file_path: str):
+    """
+    Loads a model from an .h5 file.
+
+    Parameters:
+    file_path (str): The path to the .h5 file.
+
+    Returns:
+    Model: The loaded model.
+    """
+    return keras.models.load_model(file_path)

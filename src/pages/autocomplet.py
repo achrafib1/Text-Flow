@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.data.load_data import load_vocab, load_pickle_file
+from utils.data.load_data import load_vocab, load_pickle_file, load_h5_model
 from utils.prediction.text_completion import predict_next_word, predict_next_n_words
 from utils.text_processing.edit_distance import edits1, edits2, edits3
 from utils.text_processing.text_preprocessing import text_processing
@@ -65,7 +65,7 @@ def show():
 
         else:
             # Load the LSTM model
-            lstm_model = load_pickle_file("src/models/lstm_model.pkl")
+            lstm_model = load_h5_model("src/models/model.h5")
             # Load the tokenizer
             tokenizer = load_pickle_file("src/models/tokenizer.pkl")
 
