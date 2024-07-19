@@ -1,6 +1,8 @@
 import numpy as np
 import streamlit as st
 from typing import Dict, Tuple, List, Optional
+import tensorflow as tf
+import keras
 
 
 def calculate_probability(
@@ -114,6 +116,85 @@ def predict_next_n_words(
         )
         words.append(next_word)
         previous_tokens.append(next_word)
+
+    # Return the predicted words as a string
+    return " ".join(words)
+
+
+@st.cache_data
+def predict_next_word_lstm(
+    initial_sentence: str,
+    lstm_model,
+    tokenizer,
+    sequence_length: int = 1,
+) -> str:
+    """
+    Predicts the next word based on the initial sentence using LSTM model.
+
+    Parameters:
+    initial_sentence (str): The initial sentence.
+    lstm_model: The trained LSTM model.
+    tokenizer: The trained tokenizer.
+    sequence_length (int): The maximum length of the sequence. Default is 1.
+
+    Returns:
+    str: The predicted next word as a string.
+    """
+    # Tokenize the seed text
+    tokenized_text = tokenizer.texts_to_sequences([initial_sentence])[0]
+
+    # Pad the sequences
+    padded_sequence = keras.preprocessing.sequence.pad_sequences(
+        [tokenized_text], maxlen=sequence_length - 1, padding="pre"
+    )
+
+    # Get the probabilities of predicting a word
+    prediction_probabilities = lstm_model.predict(padded_sequence, verbose=0)
+
+    # Choose the next word based on the maximum probability
+    predicted_index = np.argmax(prediction_probabilities, axis=-1).item()
+
+    # Get the actual word from the word index
+    predicted_word = tokenizer.index_word[predicted_index]
+
+    # Return the predicted word
+    return predicted_word
+
+
+@st.cache_data
+def predict_next_words_lstm(
+    initial_sentence: str,
+    lstm_model,
+    tokenizer,
+    max_len: int = 1,
+) -> str:
+    """
+    Predicts the next 'max_len' words based on the initial sentence using LSTM model.
+
+    Parameters:
+    initial_sentence (str): The initial sentence.
+    lstm_model: The trained LSTM model.
+    tokenizer: The trained tokenizer.
+    max_len (int): The maximum number of words to predict. Default is 1.
+
+    Returns:
+    str: The predicted next 'max_len' words as a string.
+    """
+    # Placeholder for the predicted words
+    words = []
+
+    # Predict the next 'max_len' words
+    for _ in range(max_len):
+        # Predict the next word
+        next_word = predict_next_word_lstm(
+            initial_sentence, lstm_model, tokenizer, max_len
+        )
+
+        # Append the predicted word to the list of words
+        words.append(next_word)
+
+        # Update the initial sentence for the next prediction
+        initial_sentence += " " + next_word
 
     # Return the predicted words as a string
     return " ".join(words)

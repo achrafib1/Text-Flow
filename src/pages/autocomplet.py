@@ -4,6 +4,7 @@ from utils.prediction.text_completion import predict_next_word, predict_next_n_w
 from utils.text_processing.edit_distance import edits1, edits2, edits3
 from utils.text_processing.text_preprocessing import text_processing
 from utils.prediction.text_correction import correct_text
+from utils.prediction.text_completion import predict_next_words_lstm
 
 
 def show():
@@ -48,21 +49,29 @@ def show():
         if feature == "Combined Autocomplete and Autocorrect":
             autocorrect_level = st.sidebar.slider("Autocorrect level", 1, 5, 3)
 
-        # Check if the feature is either 'Autocorrect' or 'Combined Autocomplete and Autocorrect'
-        if feature in ("Autocorrect", "Combined Autocomplete and Autocorrect"):
-            # Load the unigram, bigram, and trigram counters from pickle files
-            unigram_counter = load_pickle_file("src/models/unigram_counter.pkl")
-            bigram_counter = load_pickle_file("src/models/bigram_counter.pkl")
-            trigram_counter = load_pickle_file("src/models/trigram_counter.pkl")
+        if model_type == "N-gram":
+
+            # Check if the feature is either 'Autocorrect' or 'Combined Autocomplete and Autocorrect'
+            if feature in ("Autocorrect", "Combined Autocomplete and Autocorrect"):
+                # Load the unigram, bigram, and trigram counters from pickle files
+                unigram_counter = load_pickle_file("src/models/unigram_counter.pkl")
+                bigram_counter = load_pickle_file("src/models/bigram_counter.pkl")
+                trigram_counter = load_pickle_file("src/models/trigram_counter.pkl")
+
+            # Load the vocabulary, n-gram counts, and n-gram+1 counts from files
+            vocab = load_vocab("src/models/vocabulary.txt")
+            ngram_counts = load_pickle_file("src/models/ngram_counts.pkl")
+            nplus1gram_counts = load_pickle_file("src/models/nplus1gram_counts.pkl")
+
+        else:
+            # Load the LSTM model
+            lstm_model = load_pickle_file("src/models/lstm_model.pkl")
+            # Load the tokenizer
+            tokenizer = load_pickle_file("src/models/tokenizer.pkl")
 
         col1, col2 = st.columns(2)
         # Prediction
         prediction = "suggestion"
-
-        # Load the vocabulary, n-gram counts, and n-gram+1 counts from files
-        vocab = load_vocab("src/models/vocabulary.txt")
-        ngram_counts = load_pickle_file("src/models/ngram_counts.pkl")
-        nplus1gram_counts = load_pickle_file("src/models/nplus1gram_counts.pkl")
 
         # Define session state variables for the selected feature
         if f"{feature}_user_input" not in st.session_state:
@@ -95,8 +104,10 @@ def show():
 
                     if feature == "Combined Autocomplete and Autocorrect":
                         user_input = corrected_text
-                # Process the user's input
-                prev_tokens = text_processing(str(user_input))
+
+                if model_type == "N-gram":
+                    # Process the user's input
+                    prev_tokens = text_processing(str(user_input))
 
                 # If the feature is 'Interactive Autocomplete' or 'Combined Autocomplete and Autocorrect'
                 if feature in (
@@ -106,19 +117,34 @@ def show():
                     # If only one word is to be predicted
                     if num_words == 1:
 
-                        # Predict the next word
-                        next_word_prediction, prob, _ = predict_next_word(
-                            prev_tokens, ngram_counts, nplus1gram_counts, vocab
-                        )
+                        if model_type == "N-gram":
+                            # Predict the next word using N-gram model
+                            next_word_prediction, prob, _ = predict_next_word(
+                                prev_tokens, ngram_counts, nplus1gram_counts, vocab
+                            )
+                        else:
+                            # Predict the next word using LSTM model
+                            next_word_prediction = predict_next_words_lstm(
+                                str(user_input), lstm_model, tokenizer, max_len=1
+                            )
                     else:
-                        # Predict the next 'num_words' words
-                        next_word_prediction = predict_next_n_words(
-                            prev_tokens,
-                            ngram_counts,
-                            nplus1gram_counts,
-                            vocab,
-                            num_words,
-                        )
+                        if model_type == "N-gram":
+                            # Predict the next 'num_words' words using N-gram model
+                            next_word_prediction = predict_next_n_words(
+                                prev_tokens,
+                                ngram_counts,
+                                nplus1gram_counts,
+                                vocab,
+                                num_words,
+                            )
+                        else:
+                            # Predict the next 'num_words' words using LSTM model
+                            next_word_prediction = predict_next_words_lstm(
+                                str(user_input),
+                                lstm_model,
+                                tokenizer,
+                                max_len=num_words,
+                            )
                     # Update 'predicted_text' in the session state
                     st.session_state[f"{feature}_predicted_text"] = (
                         str(user_input) + " " + next_word_prediction
