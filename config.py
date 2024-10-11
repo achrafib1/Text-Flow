@@ -21,8 +21,11 @@ urls = {
 # Download the necessary files
 for filename, url in urls.items():
     target_path = os.path.join(target_dir, filename)
-    print(f"Downloading {filename} to {target_path} from {url}")
-    subprocess.run(["wget", "-O", target_path, url], check=True)
+    if not os.path.exists(target_path):
+        print(f"Downloading {filename} to {target_path} from {url}")
+        subprocess.run(["wget", "-O", target_path, url], check=True)
+    else:
+        print(f"{filename} already exists at {target_path}, skipping download.")
 
 
 # Install required libraries
