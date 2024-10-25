@@ -27,7 +27,7 @@ def show():
         # Introduction
         with st.container():
             st.header("Introduction", divider="orange")
-            # page_bg_img = "static/images/face_det_image (1).jpg"
+            page_bg_img = "static/images/text_typing_image (2).png"
             st.write(
                 """
         # Welcome to TextFlow, the future of seamless writing! 🚀
@@ -38,7 +38,7 @@ def show():
         Experience the joy of effortless writing with TextFlow. Start your journey today and let your words flow! 📝
         """
             )
-        # st.image(page_bg_img)
+        st.image(page_bg_img)
         # Navigation
         with st.container():
             st.header("start writing your text")

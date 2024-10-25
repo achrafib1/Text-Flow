@@ -26,7 +26,7 @@ def show():
         unsafe_allow_html=True,
     )
 
-    # st.image("static/images/face_det_image (2).jpg")
+    st.image("static/images/text_typing_image (1).png")
     if st.button("Start", use_container_width=True):
         st.switch_page("pages/home.py")
 
